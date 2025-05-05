@@ -19,8 +19,22 @@ function gotHands(results) {
 }
 
 function setup() {
-  createCanvas(640, 480);
-  video = createCapture(VIDEO, { flipped: true });
+  // Adjust canvas size to fit the device screen
+  let canvas = createCanvas(windowWidth, windowHeight);
+  
+  // Center the canvas on the screen
+  canvas.style('display', 'block');
+  canvas.parent('body');
+
+  // Use the device's camera
+  video = createCapture({
+    video: {
+      facingMode: "user" // Use "environment" for rear camera
+    }
+  });
+
+  // Ensure video matches canvas size
+  video.size(windowWidth, windowHeight);
   video.hide();
 
   // Start detecting hands
@@ -28,7 +42,8 @@ function setup() {
 }
 
 function draw() {
-  image(video, 0, 0);
+  background(0); // Optional: Add a background color to ensure proper centering
+  image(video, 0, 0, width, height); // Scale video to fit canvas
 
   // Ensure at least one hand is detected
   if (hands.length > 0) {
@@ -46,9 +61,34 @@ function draw() {
           }
 
           noStroke();
-          circle(keypoint.x, keypoint.y, 16);
+          circle(keypoint.x * width / video.width, keypoint.y * height / video.height, 16);
+        }
+
+        // Draw lines connecting keypoints for specific fingers
+        const fingers = [
+          { start: 1, end: 4 },  // Thumb
+          { start: 5, end: 8 },  // Index finger
+          { start: 9, end: 12 }, // Middle finger
+          { start: 13, end: 16 }, // Ring finger
+          { start: 17, end: 20 }  // Pinky finger
+        ];
+
+        for (let finger of fingers) {
+          for (let i = finger.start; i < finger.end; i++) {
+            let start = hand.keypoints[i];
+            let end = hand.keypoints[i + 1];
+            stroke(0, 255, 0);
+            line(
+              start.x * width / video.width, start.y * height / video.height,
+              end.x * width / video.width, end.y * height / video.height
+            );
+          }
         }
       }
     }
   }
+}
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight); // Adjust canvas size on window resize
 }
