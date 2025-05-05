@@ -10,20 +10,17 @@ function preload() {
   handPose = ml5.handPose({ flipped: true });
 }
 
-function mousePressed() {
-  console.log(hands);
-}
-
 function gotHands(results) {
   hands = results;
 }
 
 function setup() {
-  // Adjust canvas size to fit the device screen
+  // Create a canvas that fills the entire screen
   let canvas = createCanvas(windowWidth, windowHeight);
   
   // Center the canvas on the screen
   canvas.style('display', 'block');
+  canvas.position(0, 0); // Ensure the canvas starts at the top-left corner
   canvas.parent('body');
 
   // Use the device's camera
@@ -33,7 +30,7 @@ function setup() {
     }
   });
 
-  // Ensure video matches canvas size
+  // Match the video size to the canvas size
   video.size(windowWidth, windowHeight);
   video.hide();
 
@@ -42,8 +39,8 @@ function setup() {
 }
 
 function draw() {
-  background(0); // Optional: Add a background color to ensure proper centering
-  image(video, 0, 0, width, height); // Scale video to fit canvas
+  background(0); // Black background for better visibility
+  image(video, 0, 0, width, height); // Scale video to fill the canvas
 
   // Ensure at least one hand is detected
   if (hands.length > 0) {
@@ -78,6 +75,7 @@ function draw() {
             let start = hand.keypoints[i];
             let end = hand.keypoints[i + 1];
             stroke(0, 255, 0);
+            strokeWeight(4); // Make the lines thicker for better visibility
             line(
               start.x * width / video.width, start.y * height / video.height,
               end.x * width / video.width, end.y * height / video.height
@@ -90,5 +88,7 @@ function draw() {
 }
 
 function windowResized() {
-  resizeCanvas(windowWidth, windowHeight); // Adjust canvas size on window resize
+  // Resize the canvas and video when the window size changes
+  resizeCanvas(windowWidth, windowHeight);
+  video.size(windowWidth, windowHeight);
 }
