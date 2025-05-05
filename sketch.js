@@ -20,7 +20,11 @@ function gotHands(results) {
 
 function setup() {
   // Adjust canvas size to fit the device screen
-  createCanvas(windowWidth, windowHeight);
+  let canvas = createCanvas(windowWidth, windowHeight);
+  
+  // Center the canvas on the screen
+  canvas.style('display', 'block');
+  canvas.parent('body');
 
   // Use the device's camera
   video = createCapture({
@@ -36,6 +40,7 @@ function setup() {
 }
 
 function draw() {
+  background(0); // Optional: Add a background color to ensure proper centering
   image(video, 0, 0, width, height); // Scale video to fit canvas
 
   // Ensure at least one hand is detected
