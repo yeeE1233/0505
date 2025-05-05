@@ -19,8 +19,16 @@ function gotHands(results) {
 }
 
 function setup() {
-  createCanvas(640, 480);
-  video = createCapture(VIDEO, { flipped: true });
+  // Adjust canvas size to fit the device screen
+  createCanvas(windowWidth, windowHeight);
+
+  // Use the device's camera
+  video = createCapture({
+    video: {
+      facingMode: "user" // Use "environment" for rear camera
+    }
+  });
+  video.size(width, height);
   video.hide();
 
   // Start detecting hands
@@ -28,7 +36,7 @@ function setup() {
 }
 
 function draw() {
-  image(video, 0, 0);
+  image(video, 0, 0, width, height); // Scale video to fit canvas
 
   // Ensure at least one hand is detected
   if (hands.length > 0) {
@@ -46,50 +54,34 @@ function draw() {
           }
 
           noStroke();
-          circle(keypoint.x, keypoint.y, 16);
+          circle(keypoint.x * width / video.width, keypoint.y * height / video.height, 16);
         }
 
         // Draw lines connecting keypoints for specific fingers
-        // Thumb (keypoints 1 to 4)
-        for (let i = 1; i < 4; i++) {
-          let start = hand.keypoints[i];
-          let end = hand.keypoints[i + 1];
-          stroke(0, 255, 0);
-          line(start.x, start.y, end.x, end.y);
-        }
+        const fingers = [
+          { start: 1, end: 4 },  // Thumb
+          { start: 5, end: 8 },  // Index finger
+          { start: 9, end: 12 }, // Middle finger
+          { start: 13, end: 16 }, // Ring finger
+          { start: 17, end: 20 }  // Pinky finger
+        ];
 
-        // Index finger (keypoints 5 to 8)
-        for (let i = 5; i < 8; i++) {
-          let start = hand.keypoints[i];
-          let end = hand.keypoints[i + 1];
-          stroke(0, 255, 0);
-          line(start.x, start.y, end.x, end.y);
-        }
-
-        // Middle finger (keypoints 9 to 12)
-        for (let i = 9; i < 12; i++) {
-          let start = hand.keypoints[i];
-          let end = hand.keypoints[i + 1];
-          stroke(0, 255, 0);
-          line(start.x, start.y, end.x, end.y);
-        }
-
-        // Ring finger (keypoints 13 to 16)
-        for (let i = 13; i < 16; i++) {
-          let start = hand.keypoints[i];
-          let end = hand.keypoints[i + 1];
-          stroke(0, 255, 0);
-          line(start.x, start.y, end.x, end.y);
-        }
-
-        // Pinky finger (keypoints 17 to 20)
-        for (let i = 17; i < 20; i++) {
-          let start = hand.keypoints[i];
-          let end = hand.keypoints[i + 1];
-          stroke(0, 255, 0);
-          line(start.x, start.y, end.x, end.y);
+        for (let finger of fingers) {
+          for (let i = finger.start; i < finger.end; i++) {
+            let start = hand.keypoints[i];
+            let end = hand.keypoints[i + 1];
+            stroke(0, 255, 0);
+            line(
+              start.x * width / video.width, start.y * height / video.height,
+              end.x * width / video.width, end.y * height / video.height
+            );
+          }
         }
       }
     }
   }
+}
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight); // Adjust canvas size on window resize
 }
